@@ -1,4 +1,4 @@
-import {IMaybe, none, some} from "./maybe";
+import {IMaybe, Maybe} from "./maybe";
 
 interface INode<T> {
     next(): INode<T>
@@ -6,46 +6,55 @@ interface INode<T> {
 
 type Node<K> = { data: K, previous: Node<K> } | null
 
+interface IList<K, L extends IList<K, L>> {
+    addLast(item: K): L
+    last(): IMaybe<K>
+    popLast(): [IMaybe<K>, L]
+}
 
 //Last in first out
-class LinkedList<K> {
+class SinglyLinkedList<K> implements IList<K, SinglyLinkedList<K>> {
 
-    constructor(private head: Node<K>, public length) {
+    constructor(private _head: Node<K>, public length) {
 
     }
 
-    static of<K>(node: Node<K>, size: number): LinkedList<K> {
-        return node === null ? empty() : new LinkedList<K>(node, size)
+    static of<K>(node: Node<K>, size: number): SinglyLinkedList<K> {
+        return node === null ? empty() : new SinglyLinkedList<K>(node, size)
     }
 
-    add(item: K): LinkedList<K> {
-        return LinkedList.of({data: item, previous: this.head}, this.length + 1)
+    addLast(item: K): SinglyLinkedList<K> {
+        return SinglyLinkedList.of({data: item, previous: this._head}, this.length + 1)
     }
 
-    pop(): [item: IMaybe<K>, list: LinkedList<K>] {
+    last(): IMaybe<K> {
+        return Maybe.of(this._head.data)
+    }
+
+    popLast(): [item: IMaybe<K>, list: SinglyLinkedList<K>] {
         return this.length > 0 ?
-            [some(this.head.data), LinkedList.of(this.head.previous, this.length - 1)] :
-            [none(), this]
+            [Maybe.some(this._head.data), SinglyLinkedList.of(this._head.previous, this.length - 1)] :
+            [Maybe.none(), this]
     }
 
 
 }
 
 
-const emptyList: LinkedList<unknown> = new LinkedList<unknown>(null, 0)
+const emptyList: SinglyLinkedList<unknown> = new SinglyLinkedList<unknown>(null, 0)
 
-function empty<K>(): LinkedList<K> {
-    return emptyList as LinkedList<K>
+function empty<K>(): SinglyLinkedList<K> {
+    return emptyList as SinglyLinkedList<K>
 }
 
-function fromArray<K>(array: K[]): LinkedList<K> {
-    return LinkedList.of(array
+function fromArray<K>(array: K[]): SinglyLinkedList<K> {
+    return SinglyLinkedList.of(array
         .reduce((previous, current) => ({data: current, previous: previous}), null as Node<K>), array.length)
 
 }
 
-export {
+export const LinkedList = {
     fromArray,
-    empty,
-    LinkedList
+    empty
 }
+

@@ -10,7 +10,7 @@ export interface IMaybe<K> {
 
 }
 
-export class Some<K> implements IMaybe<K> {
+ class Some<K> implements IMaybe<K> {
 
     public constructor(private value: K) {
     }
@@ -33,7 +33,7 @@ export class Some<K> implements IMaybe<K> {
 
 }
 
-export class None<K> implements IMaybe<K> {
+ class None<K> implements IMaybe<K> {
 
     map<I>(fn: (value: K) => I) {
         return this
@@ -55,15 +55,20 @@ export class None<K> implements IMaybe<K> {
 
 const noneInstance = new None<unknown>()
 
-export function none<K>(): None<K> {
+ function none<K>(): None<K> {
     return noneInstance as None<K>
 }
 
-export function some<K>(value: K): Some<K> {
+ function some<K>(value: K): Some<K> {
     return new Some<K>(value)
 }
 
-export function of<K>(value: K): IMaybe<K> {
+ function of<K>(value: K): IMaybe<K> {
     return value === null || value === undefined ? none() : some(value)
 }
 
+export const Maybe = {
+    some,
+    of,
+    none
+}
